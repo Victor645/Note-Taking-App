@@ -1,205 +1,55 @@
-const questionBank = [
+const noteData = [
   {
-    id: crypto.randomUUID(),
-    question: 'What does DOM stand for?',
-    options: [
-      {
-        option: 'Document Object Model',
-        isCorrect: true,
-      },
-      {
-        option: 'Data Object Management',
-        isCorrect: false,
-      },
-      {
-        option: 'Document Oriented Model',
-        isCorrect: false,
-      },
-      {
-        option: 'Dynamic Object Method',
-        isCorrect: false,
-      },
-    ],
+    id: 1,
+    title: "First Note",
+    content: "This is the content of the first note.",
+    category: "Work",
+    isPinned: false,
   },
   {
-    id: crypto.randomUUID(),
-    question: 'Which of the following is NOT a JavaScript data type?',
-    options: [
-      {
-        option: 'String',
-        isCorrect: false,
-      },
-      {
-        option: 'Boolean',
-        isCorrect: false,
-      },
-      {
-        option: 'Float',
-        isCorrect: true,
-      },
-      {
-        option: 'Number',
-        isCorrect: false,
-      },
-    ],
+    id: 2,
+    title: "Task List",
+    content: "Code, Read, Play video games",
+    category: "Personal",
+    isPinned: true,
   },
   {
-    id: crypto.randomUUID(),
-    question: 'What is the correct way to declare a variable in JavaScript?',
-    options: [
-      {
-        option: 'variable myVar = 5;',
-        isCorrect: false,
-      },
-      {
-        option: 'let myVar = 5;',
-        isCorrect: true,
-      },
-      {
-        option: 'declare myVar = 5;',
-        isCorrect: false,
-      },
-      {
-        option: 'int myVar = 5;',
-        isCorrect: false,
-      },
-    ],
+    id: 3,
+    title: "My Ideas",
+    content: "This is the content of the note.",
+    category: "",
+    isPinned: false,
   },
 ];
 
-// Quiz state
-let currentQuestionIndex = Math.trunc(Math.random() * questionBank.length);
-let score = 0;
-let selectedAnswer = null;
+function renderNotes(notes) {
+  // Sort: pinned notes first
+  const sortedNotes = [...notes].sort((a, b) => b.isPinned - a.isPinned);
 
-// Initialize the quiz when the page loads
-document.addEventListener('DOMContentLoaded', function () {
-  loadQuestion();
-});
+  const bgColors = ["bg-yellow-200", "bg-red-200", "bg-blue-200", "bg-green-200", "bg-pink-200"];
 
-// Load the current question
-function loadQuestion() {
-  const currentQuestion = questionBank[currentQuestionIndex];
-
-  // Update question text
-  document.querySelector('#question-text').textContent =
-    currentQuestion.question;
-
-  // Update question counter
-  document.getElementById('current-question').textContent =
-    currentQuestionIndex + 1;
-  document.getElementById('total-questions').textContent = questionBank.length;
-
-  // Create options
-  const optionsContainer = document.getElementById('options-container');
-  optionsContainer.innerHTML = '';
-
-  currentQuestion.options.forEach((option, index) => {
-    const optionElement = document.createElement('label');
-    optionElement.className =
-      'block p-3 border rounded hover:bg-gray-50 cursor-pointer';
-    optionElement.innerHTML = `
-            <input type="radio" name="answer" value="${index}" class="mr-3" />
-            ${option.option}
-        `;
-    optionsContainer.appendChild(optionElement);
-  });
-
-  // Reset UI state
-  selectedAnswer = null;
-  document.getElementById('submit-button').disabled = false;
-  document.getElementById('next-button').classList.add('hidden');
-  document.getElementById('result-message').classList.add('hidden');
-
-  // Add event listeners to radio buttons
-  const radioButtons = document.querySelectorAll('input[name="answer"]');
-  radioButtons.forEach((radio) => {
-    radio.addEventListener('change', function () {
-      selectedAnswer = parseInt(this.value);
-    });
-  });
+  notesContainer.innerHTML = `
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      ${sortedNotes
+        .map((note, index) => {
+          const colorClass = bgColors[index % bgColors.length];
+          return `
+            <div class="${colorClass} p-4 rounded-lg shadow relative">
+              <button onclick="togglePin(${note.id})" title="${note.isPinned ? "Unpin" : "Pin"}" class="absolute top-2 left-2 text-yellow-500 text-xl hover:scale-110 transition-transform">
+                ${note.isPinned ? "📌" : "📍"}
+              </button>
+              <h3 class="font-bold text-lg mb-1">${note.title}</h3>
+              <p class="text-sm text-gray-700 mb-2">${note.content}</p>
+              <p class="text-xs text-gray-500 italic mb-2">${note.category || "No Category"}</p>
+              <div class="flex justify-between mt-2">
+                <button onclick="editNote(${note.id})" class="text-blue-600 hover:underline text-sm">Edit</button>
+                <button onclick="deleteNote(${note.id})" class="text-red-600 hover:underline text-sm">Delete</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
-// Submit the answer
-function submitAnswer() {
-  if (selectedAnswer === null) {
-    alert('Please select an answer!');
-    return;
-  }
-
-  const currentQuestion = questionBank[currentQuestionIndex];
-  const isCorrect = currentQuestion.options[selectedAnswer].isCorrect;
-
-  // Update score
-  if (isCorrect) {
-    score++;
-  }
-
-  // Show result
-  const resultMessage = document.getElementById('result-message');
-  resultMessage.classList.remove('hidden');
-
-  if (isCorrect) {
-    resultMessage.className = 'mt-4 p-3 rounded bg-green-100 text-green-800';
-    resultMessage.textContent = '✓ Correct! Well done!';
-  } else {
-    const correctAnswer = currentQuestion.options.find(
-      (opt) => opt.isCorrect
-    ).option;
-    resultMessage.className = 'mt-4 p-3 rounded bg-red-100 text-red-800';
-    resultMessage.textContent = `✗ Incorrect. The correct answer is: ${correctAnswer}`;
-  }
-
-  // Disable submit button and show next button
-  document.getElementById('submit-button').disabled = true;
-
-  if (currentQuestionIndex < questionBank.length - 1) {
-    document.getElementById('next-button').classList.remove('hidden');
-  } else {
-    // Quiz finished
-    showFinalResults();
-  }
-}
-
-// Move to next question
-function nextQuestion() {
-  currentQuestionIndex++;
-  loadQuestion();
-}
-
-// Show final results
-function showFinalResults() {
-  const percentage = Math.round((score / questionBank.length) * 100);
-
-  setTimeout(() => {
-    alert(
-      `Quiz Complete!\n\nYour Score: ${score}/${
-        questionBank.length
-      } (${percentage}%)\n\n${getScoreMessage(percentage)}`
-    );
-
-    // Ask if they want to restart
-    if (confirm('Would you like to take the quiz again?')) {
-      restartQuiz();
-    }
-  }, 2000);
-}
-
-// Get score message based on percentage
-function getScoreMessage(percentage) {
-  if (percentage === 100) return 'Perfect! You are a web development expert!';
-  if (percentage >= 80) return 'Excellent work! You know your stuff!';
-  if (percentage >= 60) return 'Good job! Keep learning!';
-  return 'Keep practicing - you will get there!';
-}
-
-// Restart the quiz
-function restartQuiz() {
-  currentQuestionIndex = 0;
-  score = 0;
-  selectedAnswer = null;
-  loadQuestion();
-}
-
-// Randomly select a question from the question bank (for testing)
-console.log(questionBank[Math.trunc(Math.random() * questionBank.length)]);
