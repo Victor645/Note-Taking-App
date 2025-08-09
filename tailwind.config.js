@@ -4,11 +4,15 @@ module.exports = {
   theme: {
    
     extend: {
-      backgroundImage: {
-        'hero-pattern': "url('./images/image-hero.jpg')"
+      fontFamily: {
+      custom: ["Playwrite AU QLD", "sans-serif"]
       },
     },
   },
   plugins: [],
 }
 
+
+
+
+  
