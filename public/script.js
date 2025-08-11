@@ -49,7 +49,7 @@ function renderNotes(notes) {
             <p class="text-sm text-gray-700 mb-2 overflow-hidden line-clamp-3">${note.content}</p>
             <p class="text-xs text-gray-500 italic mb-2">${note.category || "No Category"}</p>
             <div class="absolute bottom-3 right-3 flex gap-3">
-              <button onclick="editNote(${note.id})" class="text-blue-600 hover:underline text-xs">Edit</button>
+              <button onclick="editNotes(${note.id})" class="text-blue-600 hover:underline text-xs">Edit</button>
               <button onclick="removeNoteItem(${note.id})" class="text-red-600 hover:underline text-xs">Delete</button>
             </div>
           </div>
